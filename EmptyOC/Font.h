@@ -8,14 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, FontName) {
-    DigitalDismay,
-    DSDigi
-
-
-//    Digital Dismay": @"otf", @"DS-DIGI
-};
-
 @interface Font : NSObject
 + (instancetype)shareInstance;
 - (NSFont *)fontOfSize:(CGFloat)fontSize name:(NSString *)fontName;

@@ -7,21 +7,19 @@
 //
 
 #import "Font.h"
+
 #import <CoreText/CoreText.h>
 #import <AppKit/AppKit.h>
 
-@implementation Font {
-    NSDictionary<NSString *, NSString *> *_fontNames;
-}
 
+@implementation Font
 static Font *_instance;
 
 - (instancetype)init {
     if (self = [super init]) {
-        _fontNames = @{@"DigitalDismay": @"otf", @"DS-Digital": @"ttf"};
-
-        [_fontNames.allKeys enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            [self registFont:obj type:_fontNames[obj]];
+        NSDictionary<NSString *, NSString *> *fontNames = @{@"DigitalDismay": @"otf", @"DS-Digital": @"ttf"};
+        [fontNames.allKeys enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self registFont:obj type:fontNames[obj]];
         }];
     }
     return self;

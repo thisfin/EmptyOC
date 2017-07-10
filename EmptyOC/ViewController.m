@@ -10,8 +10,21 @@
 
 #import "Font.h"
 #import <Masonry/Masonry.h>
+#import "SettingWindow.h"
 
-@implementation ViewController
+@implementation ViewController {
+    NSTextField *_backDateTextField;
+    NSTextField *_dateTextField;
+    NSTextField *_backTimeTextField;
+    NSTextField *_timeTextField;
+    NSTextField *_amPmTextField;
+    NSMutableArray<NSTextField *> *_weekTextFields;
+
+    CGFloat _height;
+    NSColor *_backFontColor;
+    NSColor *_fontColor;
+    BOOL _isSupport24h;
+}
 
 - (void)loadView {
     self.view = [[NSView alloc] init];
@@ -24,154 +37,184 @@
     self.view.layer.backgroundColor = NSColor.blackColor.CGColor;
     self.view.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
 
-    self.view.frame = [[NSScreen mainScreen] visibleFrame];
-    NSLog(@"%f %f", [[NSScreen mainScreen] visibleFrame].size.width, [[NSScreen mainScreen] visibleFrame].size.height);
-
-    CGFloat height = [[NSScreen mainScreen] visibleFrame].size.height / 2;
-    if ([[NSScreen mainScreen] visibleFrame].size.width < [[NSScreen mainScreen] visibleFrame].size.height) {
-        height = [[NSScreen mainScreen] visibleFrame].size.width / 3.5;
+    CGRect frame = [[NSScreen mainScreen] visibleFrame];
+    _height = frame.size.height / 2;
+    if (frame.size.width < frame.size.height) {
+        _height = frame.size.width / 3.5;
     }
+    self.view.frame = frame;
+    _fontColor = NSColor.greenColor;
+    _backFontColor = [_fontColor colorWithAlphaComponent:0.08];
 
-
-    NSTextField *hourTextField = [NSTextField labelWithString:@""];
-    hourTextField.backgroundColor = NSColor.clearColor;
-    hourTextField.textColor = NSColor.blueColor;
-    hourTextField.alignment = NSTextAlignmentCenter;
-//    hourTextField.stringValue = @"24:88";
-
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:@"24:88 88"];
-    [attributedString addAttribute:NSFontAttributeName value:[[Font shareInstance] fontOfSize:height name:@"DigitalDismay"] range:NSMakeRange(0, 5)];
-    [attributedString addAttribute:NSFontAttributeName value:[[Font shareInstance] fontOfSize:height / 2 name:@"DigitalDismay"] range:NSMakeRange(5, 3)];
-    hourTextField.attributedStringValue = attributedString;
-
-    [self.view addSubview:hourTextField];
-    [hourTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.equalTo(self.view);
-        make.centerX.equalTo(self.view);
-//        make.left.equalTo(self.view).offset(200);
+    NSButton *button = [NSButton buttonWithTitle:@"click" target:self action:@selector(buttonClicked:)];
+    [self.view addSubview:button];
+    [button mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.view).offset(20);
+        make.bottom.equalTo(self.view).offset(0 - 20);
     }];
 
-    NSTextField *dayTextField = [NSTextField labelWithString:@""];
-    dayTextField.font = [[Font shareInstance] fontOfSize:height / 3 name:@"DigitalDismay"];
-    dayTextField.backgroundColor = NSColor.clearColor;
-    dayTextField.textColor = NSColor.blueColor;
-    dayTextField.alignment = NSTextAlignmentCenter;
-    dayTextField.stringValue = @"2017 12 12";
-    [self.view addSubview:dayTextField];
-    [dayTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(hourTextField.mas_top).offset(50);
-        make.left.equalTo(hourTextField);
-    }];
-
-    NSTextField *upTextField = [NSTextField labelWithString:@" AM PM"];
-    upTextField.font = [[Font shareInstance] fontOfSize:height / 6 name:@"DS-Digital"];
-    upTextField.backgroundColor = NSColor.clearColor;
-    upTextField.textColor = NSColor.blueColor;
-    upTextField.alignment = NSTextAlignmentCenter;
-    [self.view addSubview:upTextField];
-    [upTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.bottom.equalTo(hourTextField.mas_top).offset(50);
-        make.right.equalTo(hourTextField);
-        make.baseline.equalTo(dayTextField);
-    }];
-
-    NSView *weekView = [[NSView alloc] init];
-    [self.view addSubview:weekView];
-    [weekView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(hourTextField);
-        make.right.equalTo(hourTextField);
-        make.top.equalTo(hourTextField.mas_bottom).offset(0 - 50);
-    }];
-
-    NSArray<NSString *> *array = @[@"MON", @"TUE", @"WED", @"THU", @"FRI", @"SAT", @"SUN"];
-    //enumerateObjectsUsingBlock
-    NSMutableArray<NSTextField *> *weekTextFields = [[NSMutableArray alloc] init];
-    [array enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSTextField *textField = [self getWeek];
-        textField.stringValue = obj;
-        [weekView addSubview:textField];
-        [weekTextFields addObject:textField];
-    }];
-    [weekTextFields mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(weekView);
-    }];
-//    [weekTextFields mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedItemLength:120 leadSpacing:0 tailSpacing:0];
-    [weekTextFields mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedSpacing:50 leadSpacing:0 tailSpacing:0];
-    [weekView mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.height.equalTo(weekTextFields[0]);
-    }];
+    [self initTimeTextField];
+    [self initDateTextFiel];
+    [self initAmPmTextField];
+    [self initWeekTextFields];
+    [self setColor];
+    [self setDate:[[NSDate alloc] init]];
 }
-
 
 - (void)setRepresentedObject:(id)representedObject {
     [super setRepresentedObject:representedObject];
-
-    // Update the view, if already loaded.
 }
-
-- (void)viewWillAppear {
-    [super viewWillAppear];
-
-//    NSView *v = [[NSView alloc] initWithFrame:self.view.bounds];
-//    [self.view addSubview:v];
-//    v.wantsLayer = YES;
-//    v.layer.backgroundColor = NSColor.grayColor.CGColor;
-
-
-//    Font *font = [Font shareInstance];
-//
-//    NSTextField *backTextField = [NSTextField labelWithString:@"88:88888888"];
-//    [self.view addSubview:backTextField];
-//    backTextField.font = [font fontOfSize:500 name:@"DigitalDismay"];
-////    backTextField.font = [NSFont systemFontOfSize:20];
-//    backTextField.backgroundColor = NSColor.clearColor;
-//    backTextField.textColor = NSColor.grayColor;
-//    backTextField.alignment = NSTextAlignmentCenter;
-////    backTextField.stringValue = @"8888888888";
-//    [backTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.edges.equalTo(self.view);
-//    }];
-////    backTextField.frame = self.view.frame;
-////    backTextField.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-////    backTextField.cell = [[WYVerticalCenterTextFieldCell alloc] init];
-//
-//
-//    NSTextField *_textField = [NSTextField labelWithString:@"12:34567890"];
-//    [self.view addSubview:_textField];
-////    _textField.stringValue = @"1234567890";
-//    _textField.font = [font fontOfSize:500 name:@"DigitalDismay"];
-//    _textField.backgroundColor = NSColor.clearColor;
-//    _textField.textColor = NSColor.blueColor;
-//    _textField.alignment = NSTextAlignmentCenter;
-//    [_textField mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.edges.equalTo(backTextField);
-//    }];
-}
-
 
 - (void)viewDidAppear {
     [super viewDidAppear];
 
-    NSLog(@"viewDidAppear");
+    [self buttonClicked:nil];
 }
 
-- (void)viewDidDisappear {
-    [super viewDidDisappear];
+#pragma mark -
+- (void)setColor {
+    _backTimeTextField.textColor = _backFontColor;
+    _backDateTextField.textColor = _backFontColor;
 
-    NSLog(@"viewDidDisappear");
+    _timeTextField.textColor = _fontColor;
+    _dateTextField.textColor = _fontColor;
+
+    _amPmTextField.textColor = _backFontColor;
 }
 
-- (NSTextField *)getWeek {
-    CGFloat height = [[NSScreen mainScreen] visibleFrame].size.height / 2;
-    if ([[NSScreen mainScreen] visibleFrame].size.width < [[NSScreen mainScreen] visibleFrame].size.height) {
-        height = [[NSScreen mainScreen] visibleFrame].size.width /3.5;
+- (void)setDate:(NSDate *)date {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateFormat = @"yyyy MM dd";
+    _dateTextField.stringValue = [dateFormatter stringFromDate:date];
+
+    _timeTextField.attributedStringValue = ({
+        dateFormatter.dateFormat = _isSupport24h ? @"HH:mm ss" : @"hh:mm ss";
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[dateFormatter stringFromDate:date]];
+        [attributedString addAttribute:NSFontAttributeName value:[[Font shareInstance] fontOfSize:_height name:@"DigitalDismay"] range:NSMakeRange(0, 5)];
+        [attributedString addAttribute:NSFontAttributeName value:[[Font shareInstance] fontOfSize:_height / 2 name:@"DigitalDismay"] range:NSMakeRange(5, 3)];
+        attributedString;
+    });
+
+    dateFormatter.dateFormat = @"e";
+    int week = [dateFormatter stringFromDate:date].intValue;
+    [_weekTextFields enumerateObjectsUsingBlock:^(NSTextField * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (idx == week - 1) {
+            obj.textColor = _fontColor;
+        } else {
+            obj.textColor = _backFontColor;
+        }
+    }];
+
+    if (_isSupport24h) { // 清除
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:_amPmTextField.attributedStringValue.string];
+        _amPmTextField.attributedStringValue = attributedString;
+    } else {
+        dateFormatter.dateFormat = @"H";
+        BOOL isAm = ([dateFormatter stringFromDate:date].intValue < 12);
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:_amPmTextField.attributedStringValue.string];
+        [attributedString addAttribute:NSForegroundColorAttributeName value:_fontColor range:NSMakeRange(isAm ? 0 : 3, 2)];
+        _amPmTextField.attributedStringValue = attributedString;
     }
-    NSTextField *textField = [NSTextField labelWithString:@""];
-    textField.font = [[Font shareInstance] fontOfSize:height / 6 name:@"DS-Digital"];
-    textField.backgroundColor = NSColor.clearColor;
-    textField.textColor = NSColor.blueColor;
-    textField.alignment = NSTextAlignmentCenter;
-    return textField;
 }
 
+- (void)initTimeTextField {
+    _backTimeTextField = ({
+        NSTextField *textField = [NSTextField labelWithString:@""];
+        textField.alignment = NSTextAlignmentCenter;
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:@"88:88 88"];
+        [attributedString addAttribute:NSFontAttributeName value:[[Font shareInstance] fontOfSize:_height name:@"DigitalDismay"] range:NSMakeRange(0, 5)];
+        [attributedString addAttribute:NSFontAttributeName value:[[Font shareInstance] fontOfSize:_height / 2 name:@"DigitalDismay"] range:NSMakeRange(5, 3)];
+        textField.attributedStringValue = attributedString;
+        textField;
+    });
+    [self.view addSubview:_backTimeTextField];
+    [_backTimeTextField mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.equalTo(self.view);
+    }];
+
+    _timeTextField = [NSTextField labelWithString:@""];
+    _timeTextField.alignment = NSTextAlignmentCenter;
+    [self.view addSubview:_timeTextField];
+    [_timeTextField mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.equalTo(self.view);
+    }];
+}
+
+- (void)initDateTextFiel {
+    _backDateTextField = ({
+        NSTextField *textField = [NSTextField labelWithString:@"8888 88 88"];
+        textField.font = [[Font shareInstance] fontOfSize:_height / 3 name:@"DigitalDismay"];
+        textField.alignment = NSTextAlignmentCenter;
+        textField;
+    });
+    [self.view addSubview:_backDateTextField];
+    [_backDateTextField mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.equalTo(_backTimeTextField.mas_top).offset(50);
+        make.left.equalTo(_backTimeTextField);
+    }];
+
+    _dateTextField = ({
+        NSTextField *textField = [NSTextField labelWithString:@""];
+        textField.font = [[Font shareInstance] fontOfSize:_height / 3 name:@"DigitalDismay"];
+        textField.alignment = NSTextAlignmentCenter;
+        textField;
+    });
+    [self.view addSubview:_dateTextField];
+    [_dateTextField mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(_backDateTextField);
+    }];
+}
+
+- (void)initAmPmTextField {
+    _amPmTextField = ({
+        NSTextField *textField = [NSTextField labelWithString:@""];
+        textField.font = [[Font shareInstance] fontOfSize:_height / 6 name:@"DS-Digital"];
+        textField.alignment = NSTextAlignmentCenter;
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:@"AM PM"];
+        textField.attributedStringValue = attributedString;
+        textField;
+    });
+    [self.view addSubview:_amPmTextField];
+    [_amPmTextField mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(_backTimeTextField);
+        make.baseline.equalTo(_backDateTextField);
+    }];
+}
+
+- (void)initWeekTextFields {
+    NSView *weekView = [[NSView alloc] init];
+    [self.view addSubview:weekView];
+    [weekView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(_backTimeTextField);
+        make.right.equalTo(_backTimeTextField);
+        make.top.equalTo(_backTimeTextField.mas_bottom).offset(0 - 50);
+    }];
+
+    NSArray<NSString *> *array = @[@"SUN", @"MON", @"TUE", @"WED", @"THU", @"FRI", @"SAT"];
+    _weekTextFields = [[NSMutableArray alloc] init];
+    [array enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [_weekTextFields addObject:({
+            NSTextField *textField = [NSTextField labelWithString:obj];
+            textField.font = [[Font shareInstance] fontOfSize:_height / 6 name:@"DS-Digital"];
+            textField.backgroundColor = NSColor.clearColor;
+            textField.textColor = NSColor.blueColor;
+            textField.alignment = NSTextAlignmentCenter;
+            [weekView addSubview:textField];
+            textField;
+        })];
+    }];
+    [_weekTextFields mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(weekView);
+    }];
+    [_weekTextFields mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedSpacing:50 leadSpacing:0 tailSpacing:0];
+    [weekView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.height.equalTo(_weekTextFields[0]);
+    }];
+}
+
+- (void)buttonClicked:(id)sender {
+    [[NSApp mainWindow] beginSheet:[[SettingWindow alloc] init] completionHandler:^(NSModalResponse returnCode) {
+
+    }];
+}
 @end

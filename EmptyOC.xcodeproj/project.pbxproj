@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		003C6BD47BB135A901EBE1B5 /* Pods_EmptyOC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D669A4694A1288F7F2B9403F /* Pods_EmptyOC.framework */; };
+		665C8C081F13C8D400F026D1 /* SettingWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 665C8C071F13C8D400F026D1 /* SettingWindow.m */; };
 		66D8D3651F133ED700B93226 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 66D8D3641F133ED700B93226 /* AppDelegate.m */; };
 		66D8D3681F133ED700B93226 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 66D8D3671F133ED700B93226 /* main.m */; };
 		66D8D36B1F133ED700B93226 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66D8D36A1F133ED700B93226 /* ViewController.m */; };
@@ -18,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		665C8C061F13C8D400F026D1 /* SettingWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingWindow.h; sourceTree = "<group>"; };
+		665C8C071F13C8D400F026D1 /* SettingWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingWindow.m; sourceTree = "<group>"; };
 		66D8D3601F133ED700B93226 /* EmptyOC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmptyOC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66D8D3631F133ED700B93226 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		66D8D3641F133ED700B93226 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -95,6 +98,8 @@
 				66D8D3661F133ED700B93226 /* Supporting Files */,
 				66D8D3691F133ED700B93226 /* ViewController.h */,
 				66D8D36A1F133ED700B93226 /* ViewController.m */,
+				665C8C061F13C8D400F026D1 /* SettingWindow.h */,
+				665C8C071F13C8D400F026D1 /* SettingWindow.m */,
 			);
 			path = EmptyOC;
 			sourceTree = "<group>";
@@ -242,6 +247,7 @@
 				66D8D37E1F133F3200B93226 /* Font.m in Sources */,
 				66D8D36B1F133ED700B93226 /* ViewController.m in Sources */,
 				66D8D3681F133ED700B93226 /* main.m in Sources */,
+				665C8C081F13C8D400F026D1 /* SettingWindow.m in Sources */,
 				66D8D3651F133ED700B93226 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
