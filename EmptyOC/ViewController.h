@@ -9,4 +9,5 @@
 #import <Cocoa/Cocoa.h>
 
 @interface ViewController : NSViewController
+- (void)endSheetClicked:(id)sender;
 @end

@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SettingWindow : NSWindow
+@class ViewController;
 
+@interface SettingWindow : NSWindow
+@property (nonatomic, weak) ViewController *parentController;
 @end

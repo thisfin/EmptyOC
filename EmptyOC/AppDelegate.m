@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 
 #import "ViewController.h"
-
+#import "SettingWindow.h"
 
 @implementation AppDelegate {
     NSWindow *_window;
@@ -21,11 +21,16 @@
                                           styleMask: NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskResizable
                                             backing: NSBackingStoreBuffered
                                               defer: NO];
-    _window.minSize = CGSizeMake(600, 480);
+    _window.minSize = CGSizeMake(20, 20);
     viewController = [[ViewController alloc] init];
     _window.contentViewController = viewController;
     [_window center];
     [_window makeKeyAndOrderFront:self];
+
+
+//    _window = [[SettingWindow alloc] init];
+//    [_window center];
+//    [_window makeKeyAndOrderFront:self];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

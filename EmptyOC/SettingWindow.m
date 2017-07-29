@@ -10,6 +10,7 @@
 
 #import <Masonry/Masonry.h>
 #import "Font.h"
+#import "ViewController.h"
 
 
 @implementation SettingWindow {
@@ -97,7 +98,19 @@
         lastButton = button;
     }];
 
+    NSButton *backButton = [NSButton buttonWithTitle:@"submit" target:self action:@selector(backButtonclicked:)];
+    [view addSubview:backButton];
+    [backButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(view).offset(0 - 30);
+        make.top.equalTo(fontShadowColorButton.mas_bottom).offset(30);
+    }];
+
     return view;
+}
+
+- (void)backButtonclicked:(NSButton *)sender {
+    [[NSApp mainWindow] endSheet:self];
+//    [_parentController endSheetClicked:sender];
 }
 
 - (void)support24hButtonClicked:(NSButton *)sender {

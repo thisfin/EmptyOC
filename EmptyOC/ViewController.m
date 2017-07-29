@@ -24,6 +24,7 @@
     NSColor *_backFontColor;
     NSColor *_fontColor;
     BOOL _isSupport24h;
+    SettingWindow *_settingWindow;
 }
 
 - (void)loadView {
@@ -37,14 +38,17 @@
     self.view.layer.backgroundColor = NSColor.blackColor.CGColor;
     self.view.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
 
-    CGRect frame = [[NSScreen mainScreen] visibleFrame];
+//    CGRect frame = [[NSScreen mainScreen] visibleFrame];
+    CGRect frame = CGRectMake(0, 0, 296, 184);
     _height = frame.size.height / 2;
     if (frame.size.width < frame.size.height) {
         _height = frame.size.width / 3.5;
     }
     self.view.frame = frame;
     _fontColor = NSColor.greenColor;
-    _backFontColor = [_fontColor colorWithAlphaComponent:0.08];
+    _backFontColor = [_fontColor colorWithAlphaComponent:0.2];
+
+    _isSupport24h = YES;
 
     NSButton *button = [NSButton buttonWithTitle:@"click" target:self action:@selector(buttonClicked:)];
     [self.view addSubview:button];
@@ -68,7 +72,7 @@
 - (void)viewDidAppear {
     [super viewDidAppear];
 
-    [self buttonClicked:nil];
+//    [self buttonClicked:nil];
 }
 
 #pragma mark -
@@ -84,11 +88,15 @@
 
 - (void)setDate:(NSDate *)date {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    dateFormatter.dateFormat = @"yyyy MM dd";
+    dateFormatter.dateFormat = @"yyyy  MM  dd";
     _dateTextField.stringValue = [dateFormatter stringFromDate:date];
 
     _timeTextField.attributedStringValue = ({
         dateFormatter.dateFormat = _isSupport24h ? @"HH:mm ss" : @"hh:mm ss";
+        dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+//        dateFormatter.locale = _isSupport24h ? [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"] : [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+
+                NSLog(@"%@ %@", dateFormatter.dateFormat, [dateFormatter stringFromDate:date]);
         NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[dateFormatter stringFromDate:date]];
         [attributedString addAttribute:NSFontAttributeName value:[[Font shareInstance] fontOfSize:_height name:@"DigitalDismay"] range:NSMakeRange(0, 5)];
         [attributedString addAttribute:NSFontAttributeName value:[[Font shareInstance] fontOfSize:_height / 2 name:@"DigitalDismay"] range:NSMakeRange(5, 3)];
@@ -142,14 +150,14 @@
 
 - (void)initDateTextFiel {
     _backDateTextField = ({
-        NSTextField *textField = [NSTextField labelWithString:@"8888 88 88"];
+        NSTextField *textField = [NSTextField labelWithString:@"8888  88  88"];
         textField.font = [[Font shareInstance] fontOfSize:_height / 3 name:@"DigitalDismay"];
         textField.alignment = NSTextAlignmentCenter;
         textField;
     });
     [self.view addSubview:_backDateTextField];
     [_backDateTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(_backTimeTextField.mas_top).offset(50);
+        make.bottom.equalTo(_backTimeTextField.mas_top);
         make.left.equalTo(_backTimeTextField);
     }];
 
@@ -187,7 +195,7 @@
     [weekView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(_backTimeTextField);
         make.right.equalTo(_backTimeTextField);
-        make.top.equalTo(_backTimeTextField.mas_bottom).offset(0 - 50);
+        make.top.equalTo(_backTimeTextField.mas_bottom);
     }];
 
     NSArray<NSString *> *array = @[@"SUN", @"MON", @"TUE", @"WED", @"THU", @"FRI", @"SAT"];
@@ -206,15 +214,23 @@
     [_weekTextFields mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(weekView);
     }];
-    [_weekTextFields mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedSpacing:50 leadSpacing:0 tailSpacing:0];
+    [_weekTextFields mas_distributeViewsAlongAxis:MASAxisTypeHorizontal withFixedSpacing:0 leadSpacing:0 tailSpacing:0];
     [weekView mas_updateConstraints:^(MASConstraintMaker *make) {
         make.height.equalTo(_weekTextFields[0]);
     }];
 }
 
 - (void)buttonClicked:(id)sender {
-    [[NSApp mainWindow] beginSheet:[[SettingWindow alloc] init] completionHandler:^(NSModalResponse returnCode) {
+    if (!_settingWindow) {
+        _settingWindow = [[SettingWindow alloc] init];
+        _settingWindow.parentController = self;
+    }
 
+    [[NSApp mainWindow] beginSheet:_settingWindow completionHandler:^(NSModalResponse returnCode) {
     }];
+}
+
+- (void)endSheetClicked:(id)sender {
+    [[NSApplication sharedApplication] endSheet:_settingWindow];
 }
 @end
